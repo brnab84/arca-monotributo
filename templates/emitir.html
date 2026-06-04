@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Emitir Factura C</h1>
+
+{% if not listo %}
+  <div class="alert error">
+    Falta configurar el certificado. Andá a
+    <a href="{{ url_for('parametrizaciones') }}">Parametrizaciones</a> primero.
+  </div>
+{% endif %}
+
+{% if resultado %}
+  <div class="card ok-card">
+    <h2>✓ Factura emitida</h2>
+    <p><strong>Comprobante:</strong> C N° {{ '%04d'|format(cfg.PTO_VTA) }}-{{ '%08d'|format(resultado.numero) }}</p>
+    <p><strong>Importe:</strong> $ {{ '%.2f'|format(resultado.importe) }}</p>
+    <p><strong>CAE:</strong> {{ resultado.cae }}</p>
+    <p><strong>Vence:</strong> {{ resultado.vto }}</p>
+    <a class="btn" href="{{ url_for('descargar', nombre=resultado.pdf) }}">Descargar PDF</a>
+    <a class="btn secondary" href="{{ url_for('emitir') }}">Emitir otra</a>
+  </div>
+{% else %}
+  <form method="post" class="card">
+    <label>Importe total ($)
+      <input type="number" name="importe" step="0.01" min="0.01" required>
+    </label>
+
+    <label>Descripción
+      <input type="text" name="descripcion" placeholder="Servicios profesionales">
+    </label>
+
+    <label>Concepto
+      <select name="concepto">
+        <option value="1">Productos</option>
+        <option value="2">Servicios</option>
+        <option value="3">Productos y servicios</option>
+      </select>
+    </label>
+
+    <fieldset>
+      <legend>Cliente</legend>
+      <label>Nombre / Razón social
+        <input type="text" name="cliente" placeholder="Consumidor Final">
+      </label>
+      <label>Condición frente al IVA
+        <select name="cond_iva">
+          <option value="5">Consumidor Final</option>
+          <option value="1">Responsable Inscripto</option>
+          <option value="6">Monotributo</option>
+          <option value="4">Exento</option>
+        </select>
+      </label>
+      <label>Tipo de documento
+        <select name="doc_tipo">
+          <option value="99">Sin identificar / Consumidor Final</option>
+          <option value="96">DNI</option>
+          <option value="80">CUIT</option>
+        </select>
+      </label>
+      <label>Número de documento
+        <input type="number" name="doc_nro" placeholder="0">
+      </label>
+    </fieldset>
+
+    <button type="submit" class="btn" {{ 'disabled' if not listo }}>Emitir y generar PDF</button>
+  </form>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Parametrizaciones</h1>
+<p class="muted">Configurá los datos para conectarte a ARCA. Si es la primera vez,
+seguí la ayuda de cada paso.</p>
+
+<form method="post" class="card">
+  <label>Ambiente
+    <select name="ambiente">
+      <option value="homologacion" {{ 'selected' if cfg.HOMOLOGACION }}>Homologación (pruebas)</option>
+      <option value="produccion" {{ 'selected' if not cfg.HOMOLOGACION }}>Producción (facturas reales)</option>
+    </select>
+  </label>
+
+  <label>CUIT (sin guiones)
+    <input type="number" name="cuit" value="{{ cfg.CUIT }}" required>
+  </label>
+
+  <label>Punto de venta
+    <input type="number" name="pto_vta" value="{{ cfg.PTO_VTA }}" required>
+  </label>
+
+  <label>Certificado (.pem)
+    {% if cert_existe %}<span class="badge ok">Cargado</span>{% else %}<span class="badge no">Falta</span>{% endif %}
+    <textarea name="cert" rows="6" placeholder="-----BEGIN CERTIFICATE-----&#10;... pegá acá el certificado si querés reemplazarlo ...&#10;-----END CERTIFICATE-----"></textarea>
+  </label>
+
+  <label>Clave privada (.key)
+    {% if key_existe %}<span class="badge ok">Cargada</span>{% else %}<span class="badge no">Falta</span>{% endif %}
+    <textarea name="key" rows="6" placeholder="-----BEGIN PRIVATE KEY-----&#10;... pegá acá la clave si querés reemplazarla ...&#10;-----END PRIVATE KEY-----"></textarea>
+  </label>
+
+  <button type="submit" class="btn">Guardar configuración</button>
+</form>
+
+<h2>Ayuda paso a paso</h2>
+<p class="muted">Cómo obtener cada dato. Hacé clic para desplegar.</p>
+
+<details class="help">
+  <summary>1. Generar la clave privada y el pedido de certificado (CSR)</summary>
+  <p>En una terminal, dentro de la carpeta del proyecto, ejecutá:</p>
+  <pre>openssl genrsa -out private.key 2048
+openssl req -new -key private.key \
+  -subj "/C=AR/O=miempresa/CN=facturador/serialNumber=CUIT TU_CUIT" \
+  -out pedido.csr</pre>
+  <p>Reemplazá <code>TU_CUIT</code> por tu CUIT. Luego mostrá el CSR con
+  <code>cat pedido.csr</code> y copiá todo el bloque.</p>
+</details>
+
+<details class="help">
+  <summary>2. Obtener el certificado en ARCA</summary>
+  <p>Entrá a <strong>arca.gob.ar</strong> con tu Clave Fiscal (persona física).
+  Adherí y abrí el servicio
+  <strong>"WSASS – Autogestión Certificados Homologación"</strong> (para producción
+  usá <strong>"Administración de Certificados Digitales"</strong>).</p>
+  <p>En <strong>Nuevo Certificado / Crear DN</strong>: poné un nombre simbólico
+  (solo letras y números, ej. <code>facturador</code>) y pegá el contenido del CSR.
+  Clic en <strong>Crear DN y obtener certificado</strong>.</p>
+  <p>Copiá el certificado que aparece (de <code>BEGIN CERTIFICATE</code> a
+  <code>END CERTIFICATE</code>) y pegalo arriba en el campo "Certificado".</p>
+</details>
+
+<details class="help">
+  <summary>3. Autorizar el certificado al web service de facturación</summary>
+  <p>En WSASS entrá a <strong>"Crear autorización a servicio"</strong> y completá:</p>
+  <ul>
+    <li><strong>DN a autorizar:</strong> el certificado que creaste.</li>
+    <li><strong>CUIT representado:</strong> tu CUIT.</li>
+    <li><strong>Servicio:</strong> <code>wsfe</code> (Facturación Electrónica).</li>
+  </ul>
+  <p>Clic en <strong>Crear autorización de acceso</strong>.</p>
+</details>
+
+<details class="help">
+  <summary>4. Punto de venta</summary>
+  <p>En el portal de ARCA, en "Administración de puntos de venta", creá uno de tipo
+  <strong>"Factura Electrónica – Monotributo – Web Services"</strong> y anotá su número.
+  En homologación podés usar el <code>1</code>.</p>
+</details>
+
+<details class="help">
+  <summary>5. Pegar la clave privada</summary>
+  <p>El contenido de <code>private.key</code> (el archivo que generaste en el paso 1).
+  Mostralo con <code>cat private.key</code> y pegalo arriba en el campo
+  "Clave privada".</p>
+</details>
+{% endblock %}
