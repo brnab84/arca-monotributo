@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Ingresar</h1>
+<p class="muted">Esta instalación requiere contraseña para emitir facturas.</p>
+
+<form method="post" class="card">
+  <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+  <label>Contraseña
+    <input type="password" name="password" autofocus required>
+  </label>
+  <button type="submit" class="btn">Entrar</button>
+</form>
+{% endblock %}

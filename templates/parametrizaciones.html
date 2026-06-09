@@ -5,6 +5,7 @@
 seguí la ayuda de cada paso.</p>
 
 <form method="post" class="card">
+  <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
   <label>Ambiente
     <select name="ambiente">
       <option value="homologacion" {{ 'selected' if cfg.HOMOLOGACION }}>Homologación (pruebas)</option>

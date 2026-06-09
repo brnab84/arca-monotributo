@@ -22,6 +22,7 @@
 {% else %}
   {% set f = form or {} %}
   <form method="post" class="card">
+    <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
     <label>Importe total ($)
       <input type="number" name="importe" step="0.01" min="0.01" value="{{ f.importe or '' }}" required>
     </label>

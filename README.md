@@ -44,6 +44,27 @@ cae, vto, numero = emitir_factura_c(importe_total=1000.0)
 | `wsfev1.py` | Último comprobante y solicitud de CAE |
 | `main.py` | Ejemplo de uso |
 
+## Servidor web
+
+```bash
+python app.py   # -> http://127.0.0.1:5000
+```
+
+Variables de entorno (todas opcionales para uso local):
+
+| Variable | Para qué | Default |
+|---|---|---|
+| `APP_PASSWORD` | Si se define, exige login con esa contraseña. Sin ella, la app corre sin login (sólo recomendable en localhost). | — (sin login) |
+| `FLASK_SECRET_KEY` | Clave para firmar la cookie de sesión. Si no se define, se genera una aleatoria al arrancar (las sesiones se invalidan en cada reinicio). | aleatoria |
+| `FLASK_HOST` | Interfaz de escucha. | `127.0.0.1` |
+| `FLASK_DEBUG` | `1`/`true` para modo debug (**sólo en desarrollo**). | apagado |
+| `FLASK_COOKIE_SECURE` | `1`/`true` para marcar la cookie como `Secure` (usar detrás de HTTPS). | apagado |
+
+Los formularios POST están protegidos con tokens CSRF.
+
 ## Seguridad
 
-Los certificados (`*.pem`, `*.key`) y el `token.json` están en `.gitignore`. **Nunca los subas al repositorio.**
+Los certificados (`*.pem`, `*.key`), el `token.json`, `settings.json` y `config.py`
+están en `.gitignore`. **Nunca los subas al repositorio.** Si alguna vez se filtró una
+clave privada, **revocá y regenerá el certificado en ARCA** además de purgarla del
+historial de git.
