@@ -8,15 +8,18 @@ import os
 import traceback
 
 from flask import (
-    Flask, render_template, request, redirect, url_for, flash, send_file
+    Flask, render_template, request, redirect, url_for, flash, send_file,
+    abort,
 )
+from werkzeug.utils import secure_filename
 
 import config
 from wsfev1 import emitir_factura_c, ultimo_comprobante
 from factura_pdf import generar_pdf
 
 app = Flask(__name__)
-app.secret_key = "cambiar-esta-clave"
+# La clave de sesión se toma del entorno; sólo cae a un valor aleatorio en dev.
+app.secret_key = os.environ.get("FLASK_SECRET_KEY") or os.urandom(32)
 
 FACTURAS_DIR = "facturas"
 os.makedirs(FACTURAS_DIR, exist_ok=True)
@@ -113,15 +116,28 @@ def emitir():
         except Exception as e:
             flash(f"No se pudo emitir: {e}", "error")
             traceback.print_exc()
-            return redirect(url_for("emitir"))
+            # Re-renderizamos el form (no redirect) para no perder lo cargado.
+            return render_template(
+                "emitir.html", cfg=config, listo=listo, resultado=None,
+                form=request.form,
+            )
 
     return render_template("emitir.html", cfg=config, listo=listo, resultado=None)
 
 
 @app.route("/factura/<nombre>")
 def descargar(nombre):
-    return send_file(os.path.join(FACTURAS_DIR, nombre), as_attachment=True)
+    # Evitar path traversal: normalizamos y verificamos que quede dentro de FACTURAS_DIR.
+    nombre = secure_filename(nombre)
+    base = os.path.abspath(FACTURAS_DIR)
+    ruta = os.path.abspath(os.path.join(base, nombre))
+    if os.path.commonpath([base, ruta]) != base or not os.path.isfile(ruta):
+        abort(404)
+    return send_file(ruta, as_attachment=True)
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    # debug y host configurables por entorno; por defecto, sólo localhost sin debug.
+    debug = os.environ.get("FLASK_DEBUG", "").lower() in ("1", "true", "yes")
+    host = os.environ.get("FLASK_HOST", "127.0.0.1")
+    app.run(host=host, port=5000, debug=debug)
