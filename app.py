@@ -18,6 +18,7 @@ from werkzeug.utils import secure_filename
 import config
 from wsfev1 import emitir_factura_c, ultimo_comprobante
 from factura_pdf import generar_pdf
+from wsaa import get_auth
 
 app = Flask(__name__)
 # La clave de sesión se toma del entorno; sólo cae a un valor aleatorio en dev.
@@ -143,6 +144,29 @@ def parametrizaciones():
         cert_existe=cert_existe,
         key_existe=key_existe,
     )
+
+
+# ---------- Probar conexión con ARCA ----------
+@app.route("/probar-conexion", methods=["POST"])
+def probar_conexion():
+    if not (os.path.exists(config.CERT_PATH) and os.path.exists(config.KEY_PATH)):
+        flash("Falta el certificado o la clave. Cargalos antes de probar.", "error")
+        return redirect(url_for("parametrizaciones"))
+    try:
+        ambiente = "homologación" if config.HOMOLOGACION else "producción"
+        # 1) WSAA: valida certificado + clave autenticando contra ARCA.
+        get_auth()
+        # 2) WSFEv1: valida la autorización al servicio y el punto de venta.
+        ultimo = ultimo_comprobante()
+        flash(
+            f"Conexión OK ({ambiente}). Último comprobante autorizado en el "
+            f"punto de venta {config.PTO_VTA}: N° {ultimo}.",
+            "ok",
+        )
+    except Exception as e:
+        flash(f"No se pudo conectar con ARCA: {e}", "error")
+        traceback.print_exc()
+    return redirect(url_for("parametrizaciones"))
 
 
 # ---------- Emisión ----------

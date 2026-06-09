@@ -34,6 +34,15 @@ seguí la ayuda de cada paso.</p>
   <button type="submit" class="btn">Guardar configuración</button>
 </form>
 
+{% if cert_existe and key_existe %}
+<form method="post" action="{{ url_for('probar_conexion') }}" class="card">
+  <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+  <p class="muted">Verificá que el certificado autentica en ARCA y que el punto de
+  venta responde, sin emitir ninguna factura.</p>
+  <button type="submit" class="btn secondary">Probar conexión con ARCA</button>
+</form>
+{% endif %}
+
 <h2>Ayuda paso a paso</h2>
 <p class="muted">Cómo obtener cada dato. Hacé clic para desplegar.</p>
 
