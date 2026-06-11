@@ -50,6 +50,20 @@ cae, vto, numero = emitir_factura_c(importe_total=1000.0)
 python app.py   # -> http://127.0.0.1:5000
 ```
 
+### GitHub Codespaces
+
+El repo incluye `.devcontainer/`: al crear el Codespace se instalan las
+dependencias solas y se reenvía el puerto `5000`. Como las credenciales **no**
+están versionadas, cargá tu `cert.pem` y `private.key` desde la pantalla de
+**Parametrizaciones** (o subiéndolos a la raíz) antes de emitir. Arrancá con:
+
+```bash
+APP_PASSWORD=tu-clave FLASK_COOKIE_SECURE=1 python app.py
+```
+
+Abrí el puerto `5000` desde la pestaña **PORTS** (dejalo en visibilidad *Private*).
+
+
 Variables de entorno (todas opcionales para uso local):
 
 | Variable | Para qué | Default |
