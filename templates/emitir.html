@@ -20,45 +20,47 @@
     <a class="btn secondary" href="{{ url_for('emitir') }}">Emitir otra</a>
   </div>
 {% else %}
+  {% set f = form or {} %}
   <form method="post" class="card">
+    <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
     <label>Importe total ($)
-      <input type="number" name="importe" step="0.01" min="0.01" required>
+      <input type="number" name="importe" step="0.01" min="0.01" value="{{ f.importe or '' }}" required>
     </label>
 
     <label>Descripción
-      <input type="text" name="descripcion" placeholder="Servicios profesionales">
+      <input type="text" name="descripcion" placeholder="Servicios profesionales" value="{{ f.descripcion or '' }}">
     </label>
 
     <label>Concepto
       <select name="concepto">
-        <option value="1">Productos</option>
-        <option value="2">Servicios</option>
-        <option value="3">Productos y servicios</option>
+        <option value="1" {{ 'selected' if f.concepto == '1' }}>Productos</option>
+        <option value="2" {{ 'selected' if f.concepto == '2' }}>Servicios</option>
+        <option value="3" {{ 'selected' if f.concepto == '3' }}>Productos y servicios</option>
       </select>
     </label>
 
     <fieldset>
       <legend>Cliente</legend>
       <label>Nombre / Razón social
-        <input type="text" name="cliente" placeholder="Consumidor Final">
+        <input type="text" name="cliente" placeholder="Consumidor Final" value="{{ f.cliente or '' }}">
       </label>
       <label>Condición frente al IVA
         <select name="cond_iva">
-          <option value="5">Consumidor Final</option>
-          <option value="1">Responsable Inscripto</option>
-          <option value="6">Monotributo</option>
-          <option value="4">Exento</option>
+          <option value="5" {{ 'selected' if f.cond_iva == '5' }}>Consumidor Final</option>
+          <option value="1" {{ 'selected' if f.cond_iva == '1' }}>Responsable Inscripto</option>
+          <option value="6" {{ 'selected' if f.cond_iva == '6' }}>Monotributo</option>
+          <option value="4" {{ 'selected' if f.cond_iva == '4' }}>Exento</option>
         </select>
       </label>
       <label>Tipo de documento
         <select name="doc_tipo">
-          <option value="99">Sin identificar / Consumidor Final</option>
-          <option value="96">DNI</option>
-          <option value="80">CUIT</option>
+          <option value="99" {{ 'selected' if f.doc_tipo == '99' }}>Sin identificar / Consumidor Final</option>
+          <option value="96" {{ 'selected' if f.doc_tipo == '96' }}>DNI</option>
+          <option value="80" {{ 'selected' if f.doc_tipo == '80' }}>CUIT</option>
         </select>
       </label>
       <label>Número de documento
-        <input type="number" name="doc_nro" placeholder="0">
+        <input type="number" name="doc_nro" placeholder="0" value="{{ f.doc_nro or '' }}">
       </label>
     </fieldset>
 

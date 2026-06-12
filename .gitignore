@@ -1,0 +1,24 @@
+# Credenciales y secretos — NUNCA versionar
+*.pem
+*.key
+*.csr
+token.json
+settings.json
+config.py
+
+# Facturas generadas
+facturas/
+*.pdf
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+env/
+
+# Editores
+.vscode/
+.idea/
+.DS_Store

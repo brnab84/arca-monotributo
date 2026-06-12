@@ -12,6 +12,7 @@
     <nav>
       <a href="{{ url_for('emitir') }}" class="{{ 'active' if request.endpoint == 'emitir' }}">Emitir</a>
       <a href="{{ url_for('parametrizaciones') }}" class="{{ 'active' if request.endpoint == 'parametrizaciones' }}">Parametrizaciones</a>
+      {% if session.get('auth') %}<a href="{{ url_for('logout') }}">Salir</a>{% endif %}
     </nav>
     <div class="env {{ 'homo' if cfg.HOMOLOGACION else 'prod' }}">
       {{ 'HOMOLOGACIÓN' if cfg.HOMOLOGACION else 'PRODUCCIÓN' }}
